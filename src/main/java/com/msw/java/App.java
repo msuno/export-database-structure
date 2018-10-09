@@ -40,43 +40,46 @@ public class App
     	
     	Map<String, String> map = Check(args);
     	
-    	String outFile = map.get("-d")+"/database.docx";
-    	
-    	String sql1 = "SELECT DISTINCT table_name FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"'";
+    	String outFile = map.get("-d")+"/数据库表结构.docx";
+    	String sql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"'";
     	
     	String sql2 = "SELECT ordinal_position,column_name,column_type, column_key, extra ,is_nullable, column_default, column_comment,data_type,character_maximum_length "
     			+ "FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"' and table_name='";
 		
 		ResultSet rs = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),sql1);
-		log.info("开始生成文件");
-		List<String> list = getTableName(rs);
 		
+		log.info("开始生成文件");
+		List<Map<String, String>> list = getTableName(rs);
+		RowRenderData header = getHeader();
 		Map<String,Object> datas = new HashMap<String, Object>();
 		datas.put("title", "数据结构表");
 		List<Map<String,Object>> tableList = new ArrayList<Map<String,Object>>();
 		int i = 0;
-		for(String str : list){
+		for(Map<String, String> str : list){
 			log.info(str);
 			i++;
-			String sql = sql2+str+"'";
+			String sql = sql2+str.get("table_name")+"'";
 			ResultSet set = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),sql);
 			List<RowRenderData> rowList = getRowRenderData(set);
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("no", ""+i);
-			data.put("name", new TextRenderData(str, POITLStyle.getHeaderStyle()));
-			data.put("table", new MiniTableRenderData(getHeader(), rowList));
+			data.put("table_comment",str.get("table_comment")+"");
+			data.put("engine",str.get("engine")+"");
+			data.put("table_collation",str.get("table_collation")+"");
+			data.put("table_type",str.get("table_type")+"");
+			data.put("name", new TextRenderData(str.get("table_name"), POITLStyle.getHeaderStyle()));
+			data.put("table", new MiniTableRenderData(header, rowList));
 			tableList.add(data);
 		}
-		
+
 		datas.put("tablelist", new DocxRenderData(FileUtils.Base64ToFile(outFile), tableList));
 		XWPFTemplate template = XWPFTemplate.compile(FileUtils.Base64ToInputStream()).render(datas);
-	
+		
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outFile);
 			log.info("生成文件结束");
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			log.info("生成文件失败");
 		}finally {
@@ -178,17 +181,25 @@ public class App
      * @param rs
      * @return list
      */
-    private static List<String> getTableName(ResultSet rs){
-    	List<String> result = new ArrayList<String>();
+    private static List<Map<String,String>> getTableName(ResultSet rs){
+    	List<Map<String,String>> list = new ArrayList<Map<String,String>>();
     	
     	try {
 			while(rs.next()){
-				result.add(rs.getString(1));
+				Map<String,String> result = new HashMap<String,String>();
+				result.put("table_name", rs.getString("table_name")+"");
+				result.put("table_type", rs.getString("table_type")+"");
+				result.put("engine", rs.getString("engine")+"");
+				result.put("table_collation", rs.getString("table_collation")+"");
+				result.put("table_comment", rs.getString("table_comment")+"");
+				result.put("create_options", rs.getString("create_options")+"");
+				list.add(result);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
     	
-    	return result;
+    	return list;
     }
+
 }
