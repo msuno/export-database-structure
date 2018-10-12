@@ -33,11 +33,11 @@ public class FileUtils {
 		return file;
 	}
 	
-	public static void main() throws IOException {
+	/*public static void main() throws IOException {
 		byte[] b = Files.readAllBytes(Paths.get("C:\\Users\\MOSHUNWEI\\Desktop\\table.docx"));
 
 		String toString = Base64.getEncoder().encodeToString(b);
 		System.out.println(toString);
 
-	}
+	}*/
 }

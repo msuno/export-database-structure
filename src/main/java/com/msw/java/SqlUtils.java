@@ -9,8 +9,7 @@ import java.sql.Statement;
 public class SqlUtils {
 
 	private static String url = "jdbc:mysql://localhost:3306";
-	//private static String user = "root";
-	//private static String password = "1912950826";
+	
 	static {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");

@@ -28,7 +28,7 @@ public class App
 	private static Logger  log = Logger.getLogger(App.class);
     public static void main( String[] args ) throws IOException
     {
-    	
+    	//使用jar的命令，参数有4个，如果没有4个直接退出，没得商量
     	if(args.length<4){
     		log.info("参数：");
     		log.info("-n=数据库名称");
@@ -40,12 +40,17 @@ public class App
     	
     	Map<String, String> map = Check(args);
     	
+    	//默认生成的文件名
     	String outFile = map.get("-d")+"/数据库表结构.docx";
+    	
+    	//查询表的名称以及一些表需要的信息
     	String sql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"'";
     	
+    	//查询表的结构信息
     	String sql2 = "SELECT ordinal_position,column_name,column_type, column_key, extra ,is_nullable, column_default, column_comment,data_type,character_maximum_length "
     			+ "FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"' and table_name='";
 		
+    	
 		ResultSet rs = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),sql1);
 		
 		log.info("开始生成文件");
@@ -96,6 +101,11 @@ public class App
 		
     }
     
+    /**
+     * 检查缺少的参数
+     * @param args
+     * @return
+     */
     private static Map<String, String> Check(String[] args) {
     	Map<String, String> map = new HashMap<String, String>();
     	for(String str: args){
@@ -177,7 +187,7 @@ public class App
 	}
 
     /**
-     * 获取数据库的所有表名
+     * 获取数据库的所有表名及表的信息
      * @param rs
      * @return list
      */
