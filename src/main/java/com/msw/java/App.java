@@ -28,6 +28,8 @@ public class App
 	private static Logger  log = Logger.getLogger(App.class);
     public static void main( String[] args ) throws IOException
     {
+    	
+    	
     	//使用jar的命令，参数有4个，如果没有4个直接退出，没得商量
     	if(args.length<4){
     		log.info("参数：");
@@ -35,36 +37,50 @@ public class App
     		log.info("-u=用户名");
     		log.info("-p=密码");
     		log.info("-d=文件输出路径");
+    		log.info("-t=mysql or oracle defalut mysql");
     		System.exit(0);
     	}
     	
     	Map<String, String> map = Check(args);
     	
+    	if(map.get("-t")==null||map.get("-t").equals("mysql")){
+    		MySQL(map);    		
+    	}else if(map.get("-t").equals("oracle")){
+    		Oracle(map);
+    	}else{
+    		log.info("-t=mysql or oracle defalut mysql");
+    		System.exit(0);
+    	}
+    	
+    	
+    	
+    	
+		
+    }
+    
+    private static void Oracle(Map<String,String> map) throws IOException{
     	//默认生成的文件名
-    	String outFile = map.get("-d")+"/数据库表结构.docx";
+    	String outFile = map.get("-d")+"/数据库表结构(ORACLE).docx";
     	
     	//查询表的名称以及一些表需要的信息
-    	String sql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"'";
+    	String oracleSql1 = "select ut.table_name as table_name,ut.tablespace_name as engine,ut.buffer_pool as table_collation, uc.table_type as table_type,uc.comments as table_comment,ut.last_analyzed as create_options from user_tables ut,user_tab_comments uc where ut.table_name=uc.table_name";
     	
-    	//查询表的结构信息
-    	String sql2 = "SELECT ordinal_position,column_name,column_type, column_key, extra ,is_nullable, column_default, column_comment,data_type,character_maximum_length "
-    			+ "FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"' and table_name='";
-		
+    	String oracleSql2 = "select rownum as ordinal_position,c.nullable as is_nullable,c.data_default as column_default,c.data_type as data_type,c.data_length as character_maximum_length,t.column_name as column_name,t.comments as column_comment from user_col_comments t,user_tab_columns c where c.column_name=t.column_name and c.table_name=t.table_name and t.table_name='";
     	
-		ResultSet rs = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),sql1);
+		ResultSet rs = OracleUtils.getResultSet(OracleUtils.getConnnection(map.get("-u"), map.get("-p")),oracleSql1);
 		
 		log.info("开始生成文件");
 		List<Map<String, String>> list = getTableName(rs);
 		RowRenderData header = getHeader();
 		Map<String,Object> datas = new HashMap<String, Object>();
-		datas.put("title", "数据结构表");
+		datas.put("title", "数据结构表(ORACLE)");
 		List<Map<String,Object>> tableList = new ArrayList<Map<String,Object>>();
 		int i = 0;
 		for(Map<String, String> str : list){
 			log.info(str);
 			i++;
-			String sql = sql2+str.get("table_name")+"'";
-			ResultSet set = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),sql);
+			String sql = oracleSql2+str.get("table_name")+"'";
+			ResultSet set = OracleUtils.getResultSet(OracleUtils.getConnnection(map.get("-u"), map.get("-p")),sql);
 			List<RowRenderData> rowList = getRowRenderData(set);
 			Map<String,Object> data = new HashMap<String,Object>();
 			data.put("no", ""+i);
@@ -77,7 +93,7 @@ public class App
 			tableList.add(data);
 		}
 
-		datas.put("tablelist", new DocxRenderData(FileUtils.Base64ToFile(outFile), tableList));
+		datas.put("tablelist", new DocxRenderData(FileUtils.Base64ToFile(outFile,false), tableList));
 		XWPFTemplate template = XWPFTemplate.compile(FileUtils.Base64ToInputStream()).render(datas);
 		
 		FileOutputStream out = null;
@@ -98,7 +114,67 @@ public class App
 				e.printStackTrace();
 			} 
 		}
+    }
+    
+    private static void MySQL(Map<String,String> map) throws IOException{
+    	//默认生成的文件名
+    	String outFile = map.get("-d")+"/数据库表结构(MySQL).docx";
+    	
+    	//查询表的名称以及一些表需要的信息
+    	String mysqlSql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"'";
+    	
+    	//查询表的结构信息
+    	String mysqlSql2 = "SELECT ordinal_position,column_name,column_type, column_key, extra ,is_nullable, column_default, column_comment,data_type,character_maximum_length "
+    			+ "FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"' and table_name='";
 		
+    	
+		ResultSet rs = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),mysqlSql1);
+		
+		log.info("开始生成文件");
+		List<Map<String, String>> list = getTableName(rs);
+		RowRenderData header = getHeader();
+		Map<String,Object> datas = new HashMap<String, Object>();
+		datas.put("title", "数据结构表(MySQL)");
+		List<Map<String,Object>> tableList = new ArrayList<Map<String,Object>>();
+		int i = 0;
+		for(Map<String, String> str : list){
+			log.info(str);
+			i++;
+			String sql = mysqlSql2+str.get("table_name")+"'";
+			ResultSet set = SqlUtils.getResultSet(SqlUtils.getConnnection(map.get("-u"), map.get("-p")),sql);
+			List<RowRenderData> rowList = getRowRenderData(set);
+			Map<String,Object> data = new HashMap<String,Object>();
+			data.put("no", ""+i);
+			data.put("table_comment",str.get("table_comment")+"");
+			data.put("engine",str.get("engine")+"");
+			data.put("table_collation",str.get("table_collation")+"");
+			data.put("table_type",str.get("table_type")+"");
+			data.put("name", new TextRenderData(str.get("table_name"), POITLStyle.getHeaderStyle()));
+			data.put("table", new MiniTableRenderData(header, rowList));
+			tableList.add(data);
+		}
+
+		datas.put("tablelist", new DocxRenderData(FileUtils.Base64ToFile(outFile,true), tableList));
+		XWPFTemplate template = XWPFTemplate.compile(FileUtils.Base64ToInputStream()).render(datas);
+		
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(outFile);
+			log.info("生成文件结束");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			log.info("生成文件失败");
+		}finally {
+			try {
+				template.write(out);
+				out.flush();
+				out.close();
+				template.close();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
+		}
     }
     
     /**
