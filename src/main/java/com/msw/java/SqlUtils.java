@@ -22,7 +22,7 @@ public class SqlUtils {
 		try {
 			return DriverManager.getConnection(SqlUtils.url, user, password);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("Access denied for user (using password: NO)");
 			return null;
 		}
 	}

@@ -51,14 +51,10 @@ public class App
     		log.info("-t=mysql or oracle defalut mysql");
     		System.exit(0);
     	}
-    	
-    	
-    	
-    	
 		
     }
     
-    private static void Oracle(Map<String,String> map) throws IOException{
+    public static void Oracle(Map<String,String> map) throws IOException{
     	//默认生成的文件名
     	String outFile = map.get("-d")+"/数据库表结构(ORACLE).docx";
     	
@@ -116,7 +112,7 @@ public class App
 		}
     }
     
-    private static void MySQL(Map<String,String> map) throws IOException{
+    public static void MySQL(Map<String,String> map) throws IOException{
     	//默认生成的文件名
     	String outFile = map.get("-d")+"/数据库表结构(MySQL).docx";
     	

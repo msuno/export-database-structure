@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane fx:id="main" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.msw.java.MainController">
+   <children>
+      <Label layoutX="239.0" layoutY="100.0" text="用户名">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="239.0" layoutY="147.0" text="密    码">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Button fx:id="testCon" layoutX="274.0" layoutY="304.0" mnemonicParsing="false" onAction="#testCon" text="测试连接" />
+      <Button fx:id="exportWord" layoutX="395.0" layoutY="304.0" mnemonicParsing="false" onAction="#exportDoc" text="导出文档" />
+      <TextField fx:id="username" layoutX="311.0" layoutY="96.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </TextField>
+      <PasswordField fx:id="password" layoutX="311.0" layoutY="143.0">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </PasswordField>
+      <Label layoutX="239.0" layoutY="55.0" text="类    型">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <ChoiceBox fx:id="dbType" layoutX="311.0" layoutY="53.0" prefHeight="23.0" prefWidth="189.0" />
+      <Label layoutX="239.0" layoutY="242.0" text="目    录">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="dirPath" layoutX="324.0" layoutY="242.0" text="未选择">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <Button fx:id="choisePath" layoutX="299.0" layoutY="240.0" mnemonicParsing="false" onAction="#selectDirPath" prefHeight="23.0" prefWidth="5.0" text="选择路径" />
+      <ImageView fx:id="img" fitHeight="317.0" fitWidth="180.0" layoutX="25.0" layoutY="42.0" pickOnBounds="true" preserveRatio="true" />
+      <Label fx:id="dbLabel" layoutX="239.0" layoutY="194.0" text="数据库">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <ChoiceBox fx:id="dbName" layoutX="311.0" layoutY="192.0" onMouseClicked="#dbTouch" prefHeight="23.0" prefWidth="189.0" />
+   </children>
+</Pane>

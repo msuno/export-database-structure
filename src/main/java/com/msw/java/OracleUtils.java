@@ -22,7 +22,7 @@ public class OracleUtils {
 		try {
 			return DriverManager.getConnection(OracleUtils.url, user, password);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println("ORA-01017: invalid username/password; logon denied");
 			return null;
 		}
 	}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.181" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.msw.java.LoginController">
+   <children>
+      <Label layoutX="258.0" layoutY="115.0" text="用户名" />
+      <Label layoutX="258.0" layoutY="179.0" text="密    码" />
+      <ImageView fx:id="img" fitHeight="345.0" fitWidth="209.0" layoutX="21.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true" />
+      <TextField fx:id="username" layoutX="323.0" layoutY="111.0" />
+      <PasswordField fx:id="password" layoutX="323.0" layoutY="175.0" />
+      <Button fx:id="reset" layoutX="289.0" layoutY="288.0" mnemonicParsing="false" onAction="#reset" text="重置" />
+      <Button fx:id="login" layoutX="429.0" layoutY="288.0" mnemonicParsing="false" onAction="#login" text="登录" />
+   </children>
+</Pane>
