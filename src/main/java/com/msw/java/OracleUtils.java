@@ -18,9 +18,9 @@ public class OracleUtils {
 		}
 	}
 	
-	public static Connection getConnnection(String user,String password){
+	public static Connection getConnnection(String url,String user,String password){
 		try {
-			return DriverManager.getConnection(OracleUtils.url, user, password);
+			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e) {
 			System.out.println("ORA-01017: invalid username/password; logon denied");
 			return null;

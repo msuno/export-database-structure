@@ -46,6 +46,11 @@ public class MainController implements Initializable{
 	private TextField username;
 	
 	@FXML
+	private TextField port;
+	
+	@FXML TextField host;
+	
+	@FXML
 	private PasswordField password;
 	
 	@FXML
@@ -88,11 +93,13 @@ public class MainController implements Initializable{
 		String user = username.getText();
 		String pwd = password.getText();
 		String value = dbName.getValue();
+		String p = port.getText();
+		String h = host.getText();
 		if(value!=null||"".equals(value)){
 			return ;
 		}
 		if("mysql".equals(type)){
-			Connection con = SqlUtils.getConnnection(user, pwd);
+			Connection con = SqlUtils.getConnnection(String.format("jdbc:mysql://%s:%s",h,p),user, pwd);
 			if(con==null) {
 				Alerts(false,"connecting to database failed");
 				return ;
@@ -106,7 +113,6 @@ public class MainController implements Initializable{
 				System.out.println(list.toString());
 				dbName.setItems(FXCollections.observableArrayList(list));
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -142,8 +148,10 @@ public class MainController implements Initializable{
 		String type = dbType.getValue();
 		String user = username.getText();
 		String pwd = password.getText();
+		String p = port.getText();
+		String h = host.getText();
 		if("mysql".equals(type)){
-			Connection con = SqlUtils.getConnnection(user, pwd);
+			Connection con = SqlUtils.getConnnection(String.format("jdbc:mysql://%s:%s",h,p),user, pwd);
 			if(con!=null){
 				Alerts(true,"connected to database success");
 				return true;
@@ -153,7 +161,7 @@ public class MainController implements Initializable{
 			}
 		}
 		if("oracle".equals(type)){
-			Connection con = OracleUtils.getConnnection(user, pwd);
+			Connection con = OracleUtils.getConnnection(String.format("jdbc:oracle:thin:@%s:%s:ORCL",h,p),user, pwd);
 			if(con!=null){
 				Alerts(true,"connected to database success");
 				return true;
@@ -171,6 +179,8 @@ public class MainController implements Initializable{
 		String pwd = password.getText();
 		String dir = dirPath.getText();
 		String value = dbName.getValue();
+		String p = port.getText();
+		String h = host.getText();
 		if(dir.equals("未选择")){
 			Alerts(false, "请选择文件路径");
 			return;
@@ -181,6 +191,8 @@ public class MainController implements Initializable{
 		map.put("-p", pwd);
 		map.put("-d", dir);
 		map.put("-n", value);
+		map.put("p",p);
+		map.put("h",h);
 		if("mysql".equals(type)){
 			boolean b = check(map);
 			if(!b){
@@ -189,14 +201,12 @@ public class MainController implements Initializable{
 			try {
 				App.MySQL(map);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}else if("oracle".equals(type)){
 			try {
 				App.Oracle(map);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

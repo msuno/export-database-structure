@@ -18,9 +18,9 @@ public class SqlUtils {
 		}
 	}
 	
-	public static Connection getConnnection(String user,String password){
+	public static Connection getConnnection(String url, String user,String password){
 		try {
-			return DriverManager.getConnection(SqlUtils.url, user, password);
+			return DriverManager.getConnection(url, user, password);
 		} catch (SQLException e) {
 			System.out.println("Access denied for user (using password: NO)");
 			return null;
