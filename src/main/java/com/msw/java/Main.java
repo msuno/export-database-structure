@@ -8,11 +8,14 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
-		Parent login = FXMLLoader.load(getClass().getResource("/main.fxml"));
+		Parent main = FXMLLoader.load(getClass().getResource("/main.fxml"));
 		primaryStage.setTitle("工具类");
-		primaryStage.setScene(new Scene(login));
+		primaryStage.setScene(new Scene(main));
 		primaryStage.show();
 	}
+    
+    public static void main(String[] args) {
+        launch(args);
+    }
 
 }

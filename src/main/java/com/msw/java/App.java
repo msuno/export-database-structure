@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.data.DocxRenderData;
 import com.deepoove.poi.data.MiniTableRenderData;
@@ -24,32 +22,33 @@ import com.deepoove.poi.data.TextRenderData;
  * @author MOSHUNWEI
  * @version 1.0
  */
-public class App 
+public class App
 {
-	private static Logger  log = Logger.getLogger(App.class);
     public static void main( String[] args ) throws IOException
     {
     	
     	
     	//使用jar的命令，参数有4个，如果没有4个直接退出，没得商量
     	if(args.length<6){
-    		log.info("参数：");
-    		log.info("-n=数据库名称");
-    		log.info("-u=用户名");
-    		log.info("-p=密码");
-    		log.info("-d=文件输出路径");
-    		log.info("-t=mysql or oracle defalut mysql");
+    		System.out.println("参数：");
+    		System.out.println("-n=数据库名称");
+    		System.out.println("-u=用户名");
+    		System.out.println("-p=密码");
+    		System.out.println("-d=文件输出路径");
+            System.out.println("h=数据库地址");
+            System.out.println("p=数据库端口");
+    		System.out.println("-t=mysql or oracle defalut mysql");
     		System.exit(0);
     	}
     	
     	Map<String, String> map = Check(args);
     	
     	if(map.get("-t")==null||map.get("-t").equals("mysql")){
-    		MySQL(map);    		
+    		MySQL(map);
     	}else if(map.get("-t").equals("oracle")){
     		Oracle(map);
     	}else{
-    		log.info("-t=mysql or oracle defalut mysql");
+    		System.out.println("-t=mysql or oracle defalut mysql");
     		System.exit(0);
     	}
 		
@@ -82,7 +81,7 @@ public class App
     
     
     private static void createDoc(ResultSet rs,String sqls,Map<String,String> map,String outFile,boolean type,String title,Connection con) throws IOException{
-		log.info("开始生成文件");
+		System.out.println("开始生成文件");
 		List<Map<String, String>> list = getTableName(rs);
 		RowRenderData header = getHeader();
 		Map<String,Object> datas = new HashMap<>();
@@ -90,7 +89,7 @@ public class App
 		List<Map<String,Object>> tableList = new ArrayList<Map<String,Object>>();
 		int i = 0;
 		for(Map<String, String> str : list){
-			log.info(str);
+			System.out.println(str);
 			i++;
 			String sql = sqls+str.get("table_name")+"'";
 			ResultSet set = SqlUtils.getResultSet(con,sql);
@@ -112,10 +111,10 @@ public class App
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outFile);
-			log.info("生成文件结束");
+			System.out.println("生成文件结束");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			log.info("生成文件失败");
+			System.out.println("生成文件失败");
 		}finally {
 			try {
 				template.write(out);
@@ -140,27 +139,27 @@ public class App
     	}
     	
     	if(!map.containsKey("-n")){
-    		log.info("请输入数据库名称！");
+    		System.out.println("请输入数据库名称！");
     		System.exit(0);
     	}
     	if(!map.containsKey("-u")){
-    		log.info("请输入数据库用户名！");
+    		System.out.println("请输入数据库用户名！");
     		System.exit(0);
     	}
     	if(!map.containsKey("-p")){
-    		log.info("请输入数据库密码！");
+    		System.out.println("请输入数据库密码！");
     		System.exit(0);
     	}
     	if(!map.containsKey("-d")){
-    		log.info("请输入保存文件的目录！");
+    		System.out.println("请输入保存文件的目录！");
     		System.exit(0);
     	}
 		if(!map.containsKey("h")){
-			log.info("请输入地址！");
+			System.out.println("请输入地址！");
 			System.exit(0);
 		}
 		if(!map.containsKey("p")){
-			log.info("请输入端口");
+			System.out.println("请输入端口");
 			System.exit(0);
 		}
     	return map;
@@ -214,7 +213,7 @@ public class App
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-    	
+  
 		return result;
 	}
 
