@@ -69,7 +69,7 @@ public class App
     	//默认生成的文件名
     	String outFile = map.get("-d")+"/数据库表结构(MySQL).docx";
     	//查询表的名称以及一些表需要的信息
-    	String mysqlSql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"'";
+    	String mysqlSql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"' ORDER BY table_name";
     	//查询表的结构信息
     	String mysqlSql2 = "SELECT ordinal_position,column_name,column_type, column_key, extra ,is_nullable, column_default, column_comment,data_type,character_maximum_length "
     			+ "FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"' and table_name='";
@@ -171,13 +171,14 @@ public class App
      */
     private static RowRenderData getHeader(){
     	RowRenderData header = RowRenderData.build(
-				new TextRenderData("序号", POITLStyle.getHeaderStyle()),
-				new TextRenderData("字段名称", POITLStyle.getHeaderStyle()),
-				new TextRenderData("字段描述", POITLStyle.getHeaderStyle()),
-				new TextRenderData("字段类型", POITLStyle.getHeaderStyle()),
-				new TextRenderData("长度", POITLStyle.getHeaderStyle()),
-				new TextRenderData("允许空", POITLStyle.getHeaderStyle()),
-				new TextRenderData("缺省值", POITLStyle.getHeaderStyle()));
+				new TextRenderData("序号", POITLStyle.getHeaderStyle())
+				,new TextRenderData("字段名称", POITLStyle.getHeaderStyle())
+				,new TextRenderData("字段类型", POITLStyle.getHeaderStyle())
+				,new TextRenderData("长度", POITLStyle.getHeaderStyle())
+				,new TextRenderData("允许空", POITLStyle.getHeaderStyle())
+				,new TextRenderData("缺省值", POITLStyle.getHeaderStyle())
+				,new TextRenderData("备注", POITLStyle.getHeaderStyle())
+		);
 		header.setStyle(POITLStyle.getHeaderTableStyle());
 		return header;
     }
@@ -194,13 +195,13 @@ public class App
 			while(set.next()){
 				i++;
 				RowRenderData row = RowRenderData.build(
-						new TextRenderData(set.getString("ordinal_position")+""),
-						new TextRenderData(set.getString("column_name")+""),
-						new TextRenderData(set.getString("column_comment")+""),
-						new TextRenderData(set.getString("data_type")+""),
-						new TextRenderData(set.getString("character_maximum_length")+""),
-						new TextRenderData(set.getString("is_nullable")+""),
-						new TextRenderData(set.getString("column_default")+"")
+						new TextRenderData(set.getString("ordinal_position")+"")
+						,new TextRenderData(set.getString("column_name")+"")
+						,new TextRenderData(set.getString("data_type")+"")
+						,new TextRenderData(set.getString("character_maximum_length")+"")
+						,new TextRenderData(set.getString("is_nullable")+"")
+						,new TextRenderData(set.getString("column_default")+"")
+						,new TextRenderData(set.getString("column_comment")+"")
 						);
 				if(i%2==0){
 					row.setStyle(POITLStyle.getBodyTableStyle());
