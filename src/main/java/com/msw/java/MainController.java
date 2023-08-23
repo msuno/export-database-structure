@@ -100,6 +100,11 @@ public class MainController implements Initializable{
 	private ImageView img;
 
 	/**
+	 * 默认输出路径
+	 */
+	private final static String DEFAULT_EXPORT_DIR = "./export";
+	
+	/**
 	 * 初始化方法
 	 * @param location
 	 * The location used to resolve relative paths for the root object, or
@@ -114,6 +119,13 @@ public class MainController implements Initializable{
 		dbType.setItems(FXCollections.observableArrayList(DBTypeEnum.getNameList()));
 		dbType.getSelectionModel().select(0);
 		port.setText(DBTypeEnum.getEnumByCode(0).getPort());
+		// 设定默认输出路径
+		File dir = new File(DEFAULT_EXPORT_DIR);
+		if (!dir.exists() && !dir.isDirectory()) {
+			dir.mkdirs();
+		}
+		dirPath.setText(dir.getPath());
+		// 设定左边图片路径
 		Image image = new Image("/head_2.jpg");
 		img.setImage(image);
 		// 类型Select OnChange事件
