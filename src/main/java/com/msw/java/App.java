@@ -55,27 +55,31 @@ public class App
     }
     
     public static void Oracle(Map<String,String> map) throws IOException{
+	// 当前时间戳
+	long timestamp = System.currentTimeMillis();
     	//默认生成的文件名
-    	String outFile = map.get("-d")+"/数据库表结构(ORACLE).docx";
+    	String outFile = map.get("-d")+ "/" + map.get("-n") + "_数据库表结构(ORACLE)_" + timestamp + ".docx";
     	//查询表的名称以及一些表需要的信息
     	String oracleSql1 = "select ut.table_name as table_name,ut.tablespace_name as engine,ut.buffer_pool as table_collation, uc.table_type as table_type,uc.comments as table_comment,ut.last_analyzed as create_options from user_tables ut,user_tab_comments uc where ut.table_name=uc.table_name";
     	String oracleSql2 = "select rownum as ordinal_position,c.nullable as is_nullable,c.data_default as column_default,c.data_type as data_type,c.data_length as character_maximum_length,t.column_name as column_name,t.comments as column_comment from user_col_comments t,user_tab_columns c where c.column_name=t.column_name and c.table_name=t.table_name and t.table_name='";
 		ResultSet rs = OracleUtils.getResultSet(OracleUtils.getConnnection(String.format("jdbc:oracle:thin:@%s:%s:ORCL",map.get("h"),map.get("p")),map.get("-u"), map.get("-p")),oracleSql1);
 		Connection con = OracleUtils.getConnnection(String.format("jdbc:oracle:thin:@%s:%s:ORCL",map.get("h"),map.get("p")),map.get("-u"), map.get("-p"));
-		createDoc(rs,oracleSql2,map,outFile,false,"Oracle数据库表结构",con);
+		createDoc(rs,oracleSql2,map,outFile,false,"Oracle数据库 " + map.get("-n") +" 表结构",con);
     }
     
     public static void MySQL(Map<String,String> map) throws IOException{
+	// 当前时间戳
+	long timestamp = System.currentTimeMillis();
     	//默认生成的文件名
-    	String outFile = map.get("-d")+"/数据库表结构(MySQL).docx";
+    	String outFile = map.get("-d")+ "/" + map.get("-n") + "_数据库表结构(MySQL)_" + timestamp + ".docx";
     	//查询表的名称以及一些表需要的信息
-    	String mysqlSql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"'";
+    	String mysqlSql1 = "SELECT table_name, table_type , ENGINE,table_collation,table_comment, create_options FROM information_schema.TABLES WHERE table_schema='"+map.get("-n")+"' ORDER BY table_name";
     	//查询表的结构信息
     	String mysqlSql2 = "SELECT ordinal_position,column_name,column_type, column_key, extra ,is_nullable, column_default, column_comment,data_type,character_maximum_length "
     			+ "FROM information_schema.columns WHERE table_schema='"+map.get("-n")+"' and table_name='";
 		ResultSet rs = SqlUtils.getResultSet(SqlUtils.getConnnection(String.format("jdbc:mysql://%s:%s",map.get("h"),map.get("p")),map.get("-u"), map.get("-p")),mysqlSql1);
 		Connection con = SqlUtils.getConnnection(String.format("jdbc:mysql://%s:%s",map.get("h"),map.get("p")),map.get("-u"), map.get("-p"));
-		createDoc(rs,mysqlSql2,map,outFile,true,"MySQL数据库表结构",con);
+		createDoc(rs,mysqlSql2,map,outFile,true,"MySQL数据库 " + map.get("-n") + " 表结构",con);
 		
     }
     
@@ -171,13 +175,14 @@ public class App
      */
     private static RowRenderData getHeader(){
     	RowRenderData header = RowRenderData.build(
-				new TextRenderData("序号", POITLStyle.getHeaderStyle()),
-				new TextRenderData("字段名称", POITLStyle.getHeaderStyle()),
-				new TextRenderData("字段描述", POITLStyle.getHeaderStyle()),
-				new TextRenderData("字段类型", POITLStyle.getHeaderStyle()),
-				new TextRenderData("长度", POITLStyle.getHeaderStyle()),
-				new TextRenderData("允许空", POITLStyle.getHeaderStyle()),
-				new TextRenderData("缺省值", POITLStyle.getHeaderStyle()));
+				new TextRenderData("序号", POITLStyle.getHeaderStyle())
+				,new TextRenderData("字段名称", POITLStyle.getHeaderStyle())
+				,new TextRenderData("字段类型", POITLStyle.getHeaderStyle())
+				,new TextRenderData("长度", POITLStyle.getHeaderStyle())
+				,new TextRenderData("允许空", POITLStyle.getHeaderStyle())
+				,new TextRenderData("缺省值", POITLStyle.getHeaderStyle())
+				,new TextRenderData("备注", POITLStyle.getHeaderStyle())
+		);
 		header.setStyle(POITLStyle.getHeaderTableStyle());
 		return header;
     }
@@ -194,13 +199,13 @@ public class App
 			while(set.next()){
 				i++;
 				RowRenderData row = RowRenderData.build(
-						new TextRenderData(set.getString("ordinal_position")+""),
-						new TextRenderData(set.getString("column_name")+""),
-						new TextRenderData(set.getString("column_comment")+""),
-						new TextRenderData(set.getString("data_type")+""),
-						new TextRenderData(set.getString("character_maximum_length")+""),
-						new TextRenderData(set.getString("is_nullable")+""),
-						new TextRenderData(set.getString("column_default")+"")
+						new TextRenderData(set.getString("ordinal_position")+"")
+						,new TextRenderData(set.getString("column_name")+"")
+						,new TextRenderData(set.getString("data_type")+"")
+						,new TextRenderData(set.getString("character_maximum_length")+"")
+						,new TextRenderData(set.getString("is_nullable")+"")
+						,new TextRenderData(set.getString("column_default")+"")
+						,new TextRenderData(set.getString("column_comment")+"")
 						);
 				if(i%2==0){
 					row.setStyle(POITLStyle.getBodyTableStyle());
