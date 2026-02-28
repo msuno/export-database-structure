@@ -31,63 +31,119 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+import com.msw.java.DBTypeEnum;
+
 public class MainController implements Initializable{
 
-	@FXML
-	private Button testCon;
-	
-	@FXML
-	private Button exportWord;
-	
-	@FXML
-	private ChoiceBox<String> dbType;
-	
-	@FXML
-	private TextField username;
-	
+	/**
+	 * 主机
+	 */
+	@FXML TextField host;
+	/**
+	 * 端口
+	 */
 	@FXML
 	private TextField port;
-	
-	@FXML TextField host;
-	
+	/**
+	 * 类型
+	 */
+	@FXML
+	private ChoiceBox<String> dbType;
+	/**
+	 * 用户名
+	 */
+	@FXML
+	private TextField username;
+	/**
+	 * 密码
+	 */
 	@FXML
 	private PasswordField password;
-	
-	@FXML
-	private Label dirPath;
-	
-	@FXML
-	private Button choisePath;
-	
-	@FXML
-	private ImageView img;
-	
+	/**
+	 * 数据库 Select
+	 */
 	@FXML
 	private ChoiceBox<String> dbName;
-	
+	/**
+	 * 数据库Label
+	 */
 	@FXML
 	private Label dbLabel;
+	/**
+	 * 目录
+	 */
+	@FXML
+	private Label dirPath;
+
+
+	/**
+	 * 测试连接按钮
+	 */
+	@FXML
+	private Button testCon;
+	/**
+	 * 导出文档按钮
+	 */
+	@FXML
+	private Button exportWord;
+	/**
+	 * 选择目录按钮
+	 */
+	@FXML
+	private Button choisePath;
+
+
+	/**
+	 * 左侧图片
+	 */
+	@FXML
+	private ImageView img;
+
+	/**
+	 * 默认输出路径
+	 */
+	private final static String DEFAULT_EXPORT_DIR = "./export";
 	
+	/**
+	 * 初始化方法
+	 * @param location
+	 * The location used to resolve relative paths for the root object, or
+	 * <tt>null</tt> if the location is not known.
+	 *
+	 * @param resources
+	 * The resources used to localize the root object, or <tt>null</tt> if
+	 * the root object was not localized.
+	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		dbType.setItems(FXCollections.observableArrayList("mysql","oracle"));
+		dbType.setItems(FXCollections.observableArrayList(DBTypeEnum.getNameList()));
 		dbType.getSelectionModel().select(0);
+		port.setText(DBTypeEnum.getEnumByCode(0).getPort());
+		// 设定默认输出路径
+		File dir = new File(DEFAULT_EXPORT_DIR);
+		if (!dir.exists() && !dir.isDirectory()) {
+			dir.mkdirs();
+		}
+		dirPath.setText(dir.getPath());
+		// 设定左边图片路径
 		Image image = new Image("/head_2.jpg");
 		img.setImage(image);
+		// 类型Select OnChange事件
 		dbType.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if("mysql".equals(newValue)){
-					dbName.setVisible(true);
-					dbLabel.setVisible(true);
-				}else if("oracle".equals(newValue)){
-					dbName.setVisible(false);
-					dbLabel.setVisible(false);
-				}
+				// 根据 newValue 取得当前 DBTypeEnum
+				DBTypeEnum currentDBType = DBTypeEnum.getEnumByName(newValue);
+				dbName.setVisible(currentDBType.getDbNameVisible());
+				dbLabel.setVisible(currentDBType.getDbNameVisible());
+				port.setText(currentDBType.getPort());
 			}
 		});
 	}
-	
+	/**
+	 * 数据库 Select OnClick事件
+	 * @param event
+	 */
 	public void dbTouch(MouseEvent event){
 		String type = dbType.getValue();
 		String user = username.getText();
@@ -95,19 +151,20 @@ public class MainController implements Initializable{
 		String value = dbName.getValue();
 		String p = port.getText();
 		String h = host.getText();
-		if(value!=null||"".equals(value)){
+		if (value != null || "".equals(value)) {
 			return ;
 		}
-		if("mysql".equals(type)){
+		// 只有mysql数据库可以选择库
+		if (DBTypeEnum.MYSQL.getName().equals(type)) {
 			Connection con = SqlUtils.getConnnection(String.format("jdbc:mysql://%s:%s",h,p),user, pwd);
-			if(con==null) {
+			if (con==null) {
 				Alerts(false,"connecting to database failed");
 				return ;
 			}
 			ResultSet set = SqlUtils.getResultSet(con, "show databases");
 			try {
 				List<String> list = new ArrayList<String>();
-				while(set.next()){
+				while (set.next()) {
 					list.add(set.getString(1));
 				}
 				System.out.println(list.toString());
@@ -117,40 +174,47 @@ public class MainController implements Initializable{
 			}
 		}
 	}
-	
+
+	/**
+	 * 选择文件保存路径
+	 * @param event
+	 */
 	public void selectDirPath(ActionEvent event){
 		Stage mainStage = null;
 		DirectoryChooser directory = new DirectoryChooser();
 		directory.setTitle("选择路径");
 		File file = directory.showDialog(mainStage);
-		if(file!=null){
+		if (file != null) {
 			String path = file.getPath();
 			dirPath.setText(path);			
 		}
 	}
 	
 	public void typeTouch(MouseEvent event){
-		String value = dbType.getValue();
-		System.out.println(value);
-		if(value.equals("mysql")){
-			dbName.setVisible(true);
-		}
-		if(value.equals("oracle")){
-			dbName.setVisible(false);
-		}
+		String name = dbType.getValue();
+		System.out.println(name);
+		dbName.setVisible(DBTypeEnum.getEnumByName(name).getDbNameVisible());
 	}
-	
+
+	/**
+	 * 测试数据库连接
+	 * @param event
+	 */
 	public void testCon(ActionEvent event){
 		isCon();
 	}
-	
+
+	/**
+	 * 校验是否数据库连接成功
+	 * @return boolean
+	 */
 	public boolean isCon(){
 		String type = dbType.getValue();
 		String user = username.getText();
 		String pwd = password.getText();
 		String p = port.getText();
 		String h = host.getText();
-		if("mysql".equals(type)){
+		if(DBTypeEnum.MYSQL.getName().equals(type)){
 			Connection con = SqlUtils.getConnnection(String.format("jdbc:mysql://%s:%s",h,p),user, pwd);
 			if(con!=null){
 				Alerts(true,"connected to database success");
@@ -160,7 +224,7 @@ public class MainController implements Initializable{
 				return false;
 			}
 		}
-		if("oracle".equals(type)){
+		if(DBTypeEnum.ORACLE.getName().equals(type)){
 			Connection con = OracleUtils.getConnnection(String.format("jdbc:oracle:thin:@%s:%s:ORCL",h,p),user, pwd);
 			if(con!=null){
 				Alerts(true,"connected to database success");
@@ -172,7 +236,11 @@ public class MainController implements Initializable{
 		}
 		return false;
 	}
-	
+
+	/**
+	 * 导出文档
+	 * @param event
+	 */
 	public void exportDoc(ActionEvent event){
 		String type = dbType.getValue();
 		String user = username.getText();
@@ -193,7 +261,8 @@ public class MainController implements Initializable{
 		map.put("-n", value);
 		map.put("p",p);
 		map.put("h",h);
-		if("mysql".equals(type)){
+		if(DBTypeEnum.MYSQL.getName().equals(type)){
+			// Validation Check
 			boolean b = check(map);
 			if(!b){
 				return ;
@@ -203,7 +272,7 @@ public class MainController implements Initializable{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}else if("oracle".equals(type)){
+		}else if(DBTypeEnum.ORACLE.getName().equals(type)){
 			try {
 				App.Oracle(map);
 			} catch (IOException e) {
@@ -211,7 +280,12 @@ public class MainController implements Initializable{
 			}
 		}
 	}
-	
+
+	/**
+	 * Validation Check
+	 * @param map Map<String,String>
+	 * @return boolean
+	 */
 	private static boolean check(Map<String,String> map){
 		if(!map.containsKey("-n")||map.get("-n")==null||map.get("-n").equals("")){
     		Alerts(false,"请输入数据库名称！");
@@ -231,8 +305,12 @@ public class MainController implements Initializable{
     	}
     	return true;
 	}
-	
-	
+
+	/**
+	 * 弹窗Alert
+	 * @param is boolean
+	 * @param content String
+	 */
 	public static void Alerts(boolean is,String content){
 		Alert alert = new Alert(AlertType.INFORMATION);
 		if(is){
